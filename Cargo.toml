@@ -1,0 +1,16 @@
+[package]
+name = "advent_of_code_2018"
+version = "0.1.0"
+authors = ["Aidiakapi <aidiakapi@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+reqwest = "0.9.5"
+lazy_static="1.2.0"
+regex="1.1.0"
+serde="1.0.80"
+serde_derive="1.0.80"
+bincode="1.0.1"
+rust-crypto = "0.2.36"
+itertools = "0.7.11"
+permutohedron = "0.2.4"
