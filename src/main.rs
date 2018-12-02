@@ -69,4 +69,5 @@ macro_rules! main {
 
 main!(
     day01,
+    day02,
 );
