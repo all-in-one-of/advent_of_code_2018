@@ -31,33 +31,27 @@ fn part1(input: String) -> Result<isize> {
 
 fn part2(input: String) -> Result<String> {
     let input = input.lines().collect::<Vec<&str>>();
-    let char_count = input[0].len();
 
-    if char_count == 0 {
+    if input.len() == 0 {
         return Err(Error::Input("empty input"));
     }
-    if !input.iter().skip(1).all(|x| x.len() == char_count) {
+    let str_length = input[0].len();
+    if !input.iter().skip(1).all(|x| x.len() == str_length) {
         return Err(Error::Input("not all strings have the same length"));
     }
 
     for i in 0..input.len() - 1 {
-        'j: for j in i..input.len() {
-            let differences = (0..char_count)
-                .filter(|&index| input[i].as_bytes()[index] != input[j].as_bytes()[index]);
-            // Check if there is exactly 1 difference, take 2 avoids fully iterating
-            if differences.take(2).count() == 1 {
-                let mut res = String::with_capacity(char_count - 1);
-                res.extend((0..char_count).filter_map(|index| {
-                    let a = input[i].as_bytes()[index];
-                    let b = input[j].as_bytes()[index];
-                    if a == b {
-                        Some(a as char)
-                    } else {
-                        None
-                    }
-                }));
-                return Ok(res);
+        for j in i + 1..input.len() {
+            let pairs = input[i].chars().zip(input[j].chars());
+
+            let differences = pairs.clone().filter(|&(a, b)| a != b);
+            if differences.take(2).count() != 1 {
+                continue;
             }
+
+            return Ok(pairs
+                .filter_map(|(a, b)| if a == b { Some(a) } else { None })
+                .collect());
         }
     }
     Err(Error::Input("no single delta found"))
