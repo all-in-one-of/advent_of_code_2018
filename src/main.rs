@@ -10,6 +10,7 @@ extern crate serde_derive;
 extern crate bincode;
 extern crate reqwest;
 extern crate crypto;
+extern crate smallvec;
 
 mod error;
 #[macro_use]
@@ -70,4 +71,5 @@ macro_rules! main {
 main!(
     day01,
     day02,
+    day03,
 );

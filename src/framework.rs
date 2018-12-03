@@ -1,5 +1,5 @@
 macro_rules! day {
-    ($name:tt, $url:tt, $part1:ident, $part2:ident) => {
+    ($name:tt, $url:tt, $part1:tt, $part2:tt) => {
         use crate::{Error, Result};
         pub(crate) fn register_day(fw: &mut crate::framework::Framework) {
             fw.register_day(
@@ -12,7 +12,7 @@ macro_rules! day {
     };
 }
 macro_rules! day_callback {
-    (unimplemented) => {
+    (!) => {
         None
     };
     ($callback:ident) => {
