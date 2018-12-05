@@ -1,5 +1,5 @@
 #![allow(unused_imports)]
-#![feature(stmt_expr_attributes)]
+#![feature(stmt_expr_attributes, drain_filter)]
 
 #[macro_use]
 extern crate lazy_static;
@@ -73,4 +73,5 @@ main!(
     day02,
     day03,
     day04,
+    day05,
 );
