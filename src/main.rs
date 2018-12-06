@@ -11,8 +11,10 @@ extern crate bincode;
 extern crate reqwest;
 extern crate crypto;
 extern crate smallvec;
+extern crate num_traits;
 
 mod error;
+mod vec2;
 #[macro_use]
 mod framework;
 
@@ -74,4 +76,5 @@ main!(
     day03,
     day04,
     day05,
+    day06,
 );
