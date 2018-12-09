@@ -37,12 +37,14 @@ macro_rules! assert_results {
 use crate::{Error, Result};
 use reqwest::{Client, StatusCode};
 use std::collections::{BTreeMap, HashMap};
+use std::time::{Duration, Instant};
 
 #[derive(Debug, Clone)]
 pub struct Framework {
     days: BTreeMap<&'static str, Day>,
     token: Option<String>,
     input_cache: HashMap<String, String>,
+    no_fetch_before: Option<Instant>,
 }
 
 #[derive(Debug, Clone)]
@@ -65,6 +67,7 @@ impl Framework {
             days: BTreeMap::new(),
             token,
             input_cache,
+            no_fetch_before: None,
         }
     }
 
@@ -91,6 +94,13 @@ impl Framework {
     }
 
     fn fetch_input(&mut self, client: &Client, url: &'static str) -> Result<String> {
+        if let Some(no_fetch_before) = self.no_fetch_before {
+            let now = Instant::now();
+            if now < no_fetch_before {
+                std::thread::sleep(no_fetch_before - now);
+            }
+        }
+
         if let Some(v) = self.input_cache.get(url) {
             return Ok(v.clone());
         }
@@ -119,6 +129,8 @@ impl Framework {
 
         let serialized = ::bincode::serialize(&self.input_cache)?;
         ::std::fs::write("cache.dat", serialized)?;
+
+        self.no_fetch_before = Some(Instant::now() + Duration::from_secs(5));
 
         Ok(result)
     }
