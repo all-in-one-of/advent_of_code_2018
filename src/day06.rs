@@ -6,11 +6,7 @@ day!(
 );
 
 use crate::vec2::Vec2i;
-use regex::Regex;
 use smallvec::SmallVec;
-use std::cmp::Ordering;
-use std::collections::HashMap;
-use std::str::FromStr;
 
 fn parse_input(input: &str) -> Result<Vec<Vec2i>> {
     input.lines().map(|x| Ok(x.parse()?)).collect()

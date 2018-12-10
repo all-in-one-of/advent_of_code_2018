@@ -5,10 +5,8 @@ day!(
     part2
 );
 
-use regex::Regex;
 use smallvec::SmallVec;
 use std::collections::HashSet;
-use std::str::FromStr;
 
 fn transform_input(input: &str) -> Result<Vec<u8>> {
     for &b in input.as_bytes() {

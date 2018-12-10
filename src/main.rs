@@ -1,12 +1,9 @@
-#![allow(unused_imports)]
 #![feature(stmt_expr_attributes, drain_filter)]
 
 #[macro_use]
 extern crate lazy_static;
 extern crate regex;
 extern crate serde;
-#[macro_use]
-extern crate serde_derive;
 extern crate bincode;
 extern crate reqwest;
 extern crate crypto;

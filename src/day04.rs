@@ -6,7 +6,6 @@ day!(
 );
 
 use regex::Regex;
-use smallvec::SmallVec;
 use std::collections::HashMap;
 use std::str::FromStr;
 

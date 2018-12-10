@@ -5,11 +5,8 @@ day!(
     part2
 );
 
-use crate::vec2::Vec2i;
 use regex::Regex;
-use smallvec::SmallVec;
-use std::cmp::Ordering;
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::VecDeque;
 use std::str::FromStr;
 
 #[derive(Debug, Clone)]

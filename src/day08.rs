@@ -5,13 +5,6 @@ day!(
     part2
 );
 
-use crate::vec2::Vec2i;
-use regex::Regex;
-use smallvec::SmallVec;
-use std::cmp::Ordering;
-use std::collections::{HashMap, HashSet};
-use std::str::FromStr;
-
 #[derive(Debug, Clone)]
 struct Node {
     node_index: usize,

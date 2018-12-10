@@ -1,5 +1,6 @@
 macro_rules! day {
     ($name:tt, $url:tt, $part1:tt, $part2:tt) => {
+        #[allow(unused_imports)]
         use crate::{Error, Result};
         pub(crate) fn register_day(fw: &mut crate::framework::Framework) {
             fw.register_day(
