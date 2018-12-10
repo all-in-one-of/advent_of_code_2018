@@ -5,7 +5,7 @@ day!(
     part2
 );
 
-use crate::vec2::Vec2i;
+use crate::vec2::{Vec2i, AabbIteratorEx};
 use smallvec::SmallVec;
 
 fn parse_input(input: &str) -> Result<Vec<Vec2i>> {
@@ -36,14 +36,9 @@ fn compute_grid(points: &Vec<Vec2i>, padding: i32) -> Vec<Point> {
             .collect()
     }
 
-    let min = Vec2i::new(
-        points.iter().map(|v| v.x).min().unwrap() - padding,
-        points.iter().map(|v| v.y).min().unwrap() - padding,
-    );
-    let max = Vec2i::new(
-        points.iter().map(|v| v.x).max().unwrap() + padding,
-        points.iter().map(|v| v.y).max().unwrap() + padding,
-    );
+    let (mut min, mut max) = points.iter().cloned().aabb().unwrap();
+    min -= Vec2i::new(padding, padding);
+    max += Vec2i::new(padding, padding);
 
     let mut points: Vec<_> = points
         .iter()

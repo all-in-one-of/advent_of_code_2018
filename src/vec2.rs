@@ -1,4 +1,5 @@
 use std::ops::{Add, AddAssign, Sub, SubAssign, Mul, MulAssign, Div, DivAssign, Rem, RemAssign, Neg};
+use std::cmp::Ordering;
 use std::str::FromStr;
 use num_traits::{
     Num,
@@ -193,5 +194,45 @@ where
     type Err = <Self as Num>::FromStrRadixErr;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         <Self as Num>::from_str_radix(s, 10)
+    }
+}
+
+pub trait AabbIteratorEx<T>: Iterator {
+    fn aabb(self) -> Option<(Vec2<T>, Vec2<T>)>;
+}
+
+impl<T, V> AabbIteratorEx<V> for T
+where
+    T: Iterator<Item=Vec2<V>>,
+    V: Ord + Clone,
+{
+    fn aabb(mut self) -> Option<(Vec2<V>, Vec2<V>)> {
+        if let Some(first) = self.next() {
+            let mut min = first.clone();
+            let mut max = first;
+            while let Some(next) = self.next() {
+                match next.x.cmp(&min.x) {
+                    Ordering::Less => min.x = next.x.clone(),
+                    _ => {
+                        if let Ordering::Greater = next.x.cmp(&max.x) {
+                            max.x = next.x.clone();
+                        }
+                    }
+                }
+                
+                match next.y.cmp(&min.y) {
+                    Ordering::Less => min.y = next.y.clone(),
+                    _ => {
+                        if let Ordering::Greater = next.y.cmp(&max.y) {
+                            max.y = next.y.clone();
+                        }
+                    }
+                }
+            }
+            Some((min, max))
+        }
+        else {
+            None
+        }
     }
 }
