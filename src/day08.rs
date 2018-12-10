@@ -38,8 +38,8 @@ fn parse_nodes(input: &str) -> Result<Node> {
     parse_node(&mut nrs.into_iter(), &mut node_index)
 }
 
-fn part1(input: String) -> Result<usize> {
-    let root = parse_nodes(&input)?;
+fn part1(input: &str) -> Result<usize> {
+    let root = parse_nodes(input)?;
     fn visit(node: &Node) -> usize {
         node.metadata.iter().cloned().sum::<usize>()
             + node.children.iter().map(visit).sum::<usize>()
@@ -48,8 +48,8 @@ fn part1(input: String) -> Result<usize> {
     Ok(visit(&root))
 }
 
-fn part2(input: String) -> Result<usize> {
-    let root = parse_nodes(&input)?;
+fn part2(input: &str) -> Result<usize> {
+    let root = parse_nodes(input)?;
 
     fn visit(node: &Node) -> usize {
         if node.children.len() == 0 {

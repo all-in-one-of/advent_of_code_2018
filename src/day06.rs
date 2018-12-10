@@ -67,8 +67,8 @@ fn compute_grid(points: &Vec<Vec2i>, padding: i32) -> Vec<Point> {
     points
 }
 
-fn part1(input: String) -> Result<usize> {
-    let input = parse_input(&input)?;
+fn part1(input: &str) -> Result<usize> {
+    let input = parse_input(input)?;
 
     let base = compute_grid(&input, 0);
     let padded = compute_grid(&input, 1);
@@ -87,8 +87,8 @@ fn part1(input: String) -> Result<usize> {
         .ok_or(Error::Input("no non-infinite points"))
 }
 
-fn part2_impl(input: String, max_distance: i32) -> Result<usize> {
-    let points = parse_input(&input)?;
+fn part2_impl(input: &str, max_distance: i32) -> Result<usize> {
+    let points = parse_input(input)?;
 
     let min = Vec2i::new(
         points.iter().map(|v| v.x).min().unwrap(),
@@ -115,7 +115,7 @@ fn part2_impl(input: String, max_distance: i32) -> Result<usize> {
     Ok(in_range)
 }
 
-fn part2(input: String) -> Result<usize> {
+fn part2(input: &str) -> Result<usize> {
     part2_impl(input, 10000)
 }
 
@@ -128,7 +128,7 @@ fn day06_test() {
 5, 5
 8, 9";
 
-    fn part2_test(input: String) -> Result<usize> {
+    fn part2_test(input: &str) -> Result<usize> {
         part2_impl(input, 32)
     }
 

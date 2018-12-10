@@ -191,8 +191,8 @@ fn calculate_most_asleep(ranges: &Vec<TimeRange>) -> (usize, usize) {
         .unwrap()
 }
 
-fn part1(input: String) -> Result<usize> {
-    let records = parse_input(&input)?;
+fn part1(input: &str) -> Result<usize> {
+    let records = parse_input(input)?;
     let time_ranges = transform(&records)?;
 
     time_ranges
@@ -215,8 +215,8 @@ fn part1(input: String) -> Result<usize> {
         .ok_or(Error::Input("no records"))
 }
 
-fn part2(input: String) -> Result<usize> {
-    let records = parse_input(&input)?;
+fn part2(input: &str) -> Result<usize> {
+    let records = parse_input(input)?;
     let time_ranges = transform(&records)?;
 
     time_ranges

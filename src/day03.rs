@@ -58,7 +58,7 @@ fn get_request_grid(claims: &Vec<Claim>) -> RequestGrid {
     grid
 }
 
-fn part1(input: String) -> Result<usize> {
+fn part1(input: &str) -> Result<usize> {
     let claims = input
         .lines()
         .map(Claim::from_str)
@@ -68,7 +68,7 @@ fn part1(input: String) -> Result<usize> {
     Ok(req_grid.iter().filter(|x| x.len() > 1).count())
 }
 
-fn part2(input: String) -> Result<usize> {
+fn part2(input: &str) -> Result<usize> {
     let claims = input
         .lines()
         .map(Claim::from_str)

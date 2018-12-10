@@ -15,7 +15,7 @@ fn letter_counts(input: &str) -> HashMap<char, usize> {
     map
 }
 
-fn part1(input: String) -> Result<isize> {
+fn part1(input: &str) -> Result<isize> {
     let mut twos = 0;
     let mut threes = 0;
     for count in input.lines().map(letter_counts) {
@@ -29,7 +29,7 @@ fn part1(input: String) -> Result<isize> {
     return Ok(twos * threes);
 }
 
-fn part2(input: String) -> Result<String> {
+fn part2(input: &str) -> Result<String> {
     let input = input.lines().collect::<Vec<&str>>();
 
     if input.len() == 0 {

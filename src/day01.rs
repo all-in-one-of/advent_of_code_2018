@@ -18,20 +18,20 @@ fn parse_input<'a>(input: &'a str) -> impl Iterator<Item = Result<isize>> + 'a {
     })
 }
 
-fn part1(input: String) -> Result<isize> {
+fn part1(input: &str) -> Result<isize> {
     let mut freq = 0;
-    for input in parse_input(&input) {
+    for input in parse_input(input) {
         freq += input?;
     }
     return Ok(freq);
 }
 
-fn part2(input: String) -> Result<isize> {
+fn part2(input: &str) -> Result<isize> {
     let mut seen = HashSet::new();
     let mut freq = 0;
     seen.insert(0);
     loop {
-        for input in parse_input(&input) {
+        for input in parse_input(input) {
             freq += input?;
             if !seen.insert(freq) {
                 return Ok(freq);

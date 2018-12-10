@@ -17,20 +17,17 @@ macro_rules! day_callback {
         None
     };
     ($callback:ident) => {
-        Some((|input| $callback(input).map(|x| x.to_string())) as (fn(String) -> Result<String>))
-    };
-}
-#[cfg(test)]
-macro_rules! assert_result {
-    ($fn:ident, $expected:expr, $input:tt) => {
-        assert_eq!($expected, $fn($input.to_owned()).expect("function should run without error"));
+        Some((|input| $callback(input).map(|x| x.to_string())) as (fn(&str) -> Result<String>))
     };
 }
 #[cfg(test)]
 macro_rules! assert_results {
     ($fn:ident, $($input:tt => $expected:expr),+$(,)*) => {
         $(
-            assert_result!($fn, $expected, $input);
+            assert_eq!(
+                $fn($input).expect("function should run without error"),
+                $expected
+            );
         )+;
     };
 }
@@ -40,7 +37,7 @@ use reqwest::{Client, StatusCode};
 use std::collections::{BTreeMap, HashMap};
 use std::time::{Duration, Instant};
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct Framework {
     days: BTreeMap<&'static str, Day>,
     token: Option<String>,
@@ -48,12 +45,12 @@ pub struct Framework {
     no_fetch_before: Option<Instant>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 struct Day {
     name: &'static str,
     url: &'static str,
-    part1: Option<fn(String) -> Result<String>>,
-    part2: Option<fn(String) -> Result<String>>,
+    part1: Option<fn(&str) -> Result<String>>,
+    part2: Option<fn(&str) -> Result<String>>,
 }
 
 impl Framework {
@@ -76,8 +73,8 @@ impl Framework {
         &mut self,
         name: &'static str,
         url: &'static str,
-        part1: Option<fn(String) -> Result<String>>,
-        part2: Option<fn(String) -> Result<String>>,
+        part1: Option<fn(&str) -> Result<String>>,
+        part2: Option<fn(&str) -> Result<String>>,
     ) -> bool {
         if self.days.contains_key(&name) {
             return false;
@@ -94,7 +91,7 @@ impl Framework {
         true
     }
 
-    fn fetch_input(&mut self, client: &Client, url: &'static str) -> Result<String> {
+    fn cache_input(&mut self, client: &Client, url: &'static str) -> Result<()> {
         if let Some(no_fetch_before) = self.no_fetch_before {
             let now = Instant::now();
             if now < no_fetch_before {
@@ -102,19 +99,20 @@ impl Framework {
             }
         }
 
-        if let Some(v) = self.input_cache.get(url) {
-            return Ok(v.clone());
+        if self.input_cache.get(url).is_some() {
+            return Ok(());
         }
         let token = self.token.as_ref().ok_or(Error::MissingSessionToken)?;
 
-        let mut response = client.get(url)
+        let mut response = client
+            .get(url)
             .header("cookie", format!("session={}", token))
             .send()?;
 
         if response.status() != StatusCode::OK {
             return Err(Error::InvalidSessionToken(response.status()));
         }
-        
+
         let mut result = response.text()?;
 
         // Strip trailing newline characters
@@ -125,24 +123,29 @@ impl Framework {
             result.push(last);
             break;
         }
-        
-        self.input_cache.insert(url.to_owned(), result.clone());
+
+        self.input_cache.insert(url.to_owned(), result);
 
         let serialized = ::bincode::serialize(&self.input_cache)?;
         ::std::fs::write("cache.dat", serialized)?;
 
         self.no_fetch_before = Some(Instant::now() + Duration::from_secs(5));
 
-        Ok(result)
+        Ok(())
     }
 
     pub fn execute(&mut self, client: &Client, day: &str) -> Result<()> {
-        let day = self.days.get(day).ok_or_else(|| Error::DayDoesNotExist(day.to_owned()))?.clone();
+        let day = self
+            .days
+            .get(day)
+            .ok_or_else(|| Error::DayDoesNotExist(day.to_owned()))?
+            .clone();
 
-        let input = self.fetch_input(client, day.url)?;
+        self.cache_input(client, day.url)?;
+        let input = self.input_cache.get(day.url).unwrap();
         if let Some(part1) = day.part1 {
             println!("\nRunning {}, part 1", day.name);
-            println!("Result:\n{}", part1(input.clone())?);
+            println!("Result:\n{}", part1(input)?);
         }
         if let Some(part2) = day.part2 {
             println!("\nRunning {}, part 2", day.name);

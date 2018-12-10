@@ -35,7 +35,7 @@ impl FromStr for Counts {
     }
 }
 
-fn part1(input: String) -> Result<u64> {
+fn part1(input: &str) -> Result<u64> {
     let counts: Counts = input.parse()?;
     let mut player_scores = vec![0u64; counts.player];
     let mut marble_ring = VecDeque::with_capacity(counts.marble);
@@ -63,7 +63,7 @@ fn part1(input: String) -> Result<u64> {
     Ok(player_scores.into_iter().max().unwrap())
 }
 
-fn part2_impl(input: String, should_multiply_input: bool) -> Result<u64> {
+fn part2_impl(input: &str, should_multiply_input: bool) -> Result<u64> {
     let mut counts: Counts = input.parse()?;
     if should_multiply_input {
         counts.marble = (counts.marble - 1) * 100 + 1;
@@ -125,14 +125,14 @@ fn part2_impl(input: String, should_multiply_input: bool) -> Result<u64> {
     Ok(player_scores.into_iter().max().unwrap())
 }
 
-fn part2(input: String) -> Result<u64> {
+fn part2(input: &str) -> Result<u64> {
     part2_impl(input, true)
 }
 
 #[test]
 fn day09_test() {
-    fn test_both(input: String) -> Result<u64> {
-        let res1 = part1(input.clone()).unwrap();
+    fn test_both(input: &str) -> Result<u64> {
+        let res1 = part1(input).unwrap();
         let res2 = part2_impl(input, false).unwrap();
         assert_eq!(res1, res2);
         Ok(res1)

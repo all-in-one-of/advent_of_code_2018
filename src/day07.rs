@@ -34,7 +34,7 @@ impl FromStr for Rule {
     }
 }
 
-fn create_dependency_graph(input: String) -> Result<HashMap<char, Vec<char>>> {
+fn create_dependency_graph(input: &str) -> Result<HashMap<char, Vec<char>>> {
     let rules = input
         .lines()
         .map(Rule::from_str)
@@ -48,7 +48,7 @@ fn create_dependency_graph(input: String) -> Result<HashMap<char, Vec<char>>> {
     Ok(dependencies)
 }
 
-fn part1(input: String) -> Result<String> {
+fn part1(input: &str) -> Result<String> {
     let mut dependencies = create_dependency_graph(input)?;
 
     let mut order = String::with_capacity(dependencies.len());
@@ -66,7 +66,7 @@ fn part1(input: String) -> Result<String> {
     Ok(order)
 }
 
-fn part2_impl(input: String, extra_time: usize, worker_count: usize) -> Result<usize> {
+fn part2_impl(input: &str, extra_time: usize, worker_count: usize) -> Result<usize> {
     let mut dependencies = create_dependency_graph(input)?;
     let mut in_progress = HashSet::new();
 
@@ -122,7 +122,7 @@ fn part2_impl(input: String, extra_time: usize, worker_count: usize) -> Result<u
     Ok(time)
 }
 
-fn part2(input: String) -> Result<usize> {
+fn part2(input: &str) -> Result<usize> {
     part2_impl(input, 60, 5)
 }
 
@@ -136,7 +136,7 @@ Step B must be finished before step E can begin.
 Step D must be finished before step E can begin.
 Step F must be finished before step E can begin.";
 
-    fn part2_test(input: String) -> Result<usize> {
+    fn part2_test(input: &str) -> Result<usize> {
         part2_impl(input, 0, 2)
     }
 

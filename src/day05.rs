@@ -123,14 +123,14 @@ fn react(data: &mut Vec<u8>) -> bool {
     }
 }
 
-fn part1(input: String) -> Result<usize> {
-    let mut data = transform_input(&input)?;
+fn part1(input: &str) -> Result<usize> {
+    let mut data = transform_input(input)?;
     react_fully(&mut data);
     Ok(data.len())
 }
 
-fn part2(input: String) -> Result<usize> {
-    let data = transform_input(&input)?;
+fn part2(input: &str) -> Result<usize> {
+    let data = transform_input(input)?;
     data.iter()
         .map(|&c| (c as char).to_ascii_lowercase())
         .collect::<HashSet<char>>()
