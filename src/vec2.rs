@@ -1,5 +1,6 @@
 use std::ops::{Add, AddAssign, Sub, SubAssign, Mul, MulAssign, Div, DivAssign, Rem, RemAssign, Neg};
 use std::cmp::Ordering;
+use std::fmt;
 use std::str::FromStr;
 use num_traits::{
     Num,
@@ -194,6 +195,15 @@ where
     type Err = <Self as Num>::FromStrRadixErr;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         <Self as Num>::from_str_radix(s, 10)
+    }
+}
+
+impl<T> fmt::Display for Vec2<T>
+where
+    T: fmt::Display,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}, {}", self.x, self.y)
     }
 }
 
