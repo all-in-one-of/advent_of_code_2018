@@ -9,6 +9,7 @@ use num_traits::{
 };
 
 pub type Vec2i = Vec2<i32>;
+pub type Vec2us = Vec2<usize>;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Default, Hash)]
 pub struct Vec2<T> {
@@ -17,11 +18,31 @@ pub struct Vec2<T> {
 }
 
 impl<T> Vec2<T>
+{
+    pub const fn new(x: T, y: T) -> Self {
+        Vec2 { x, y }
+    }
+}
+impl<T> From<T> for Vec2<T>
 where
     T: Clone
 {
-    pub fn new(x: T, y: T) -> Self {
-        Vec2 { x, y }
+    fn from(value: T) -> Self {
+        Vec2 {
+            x: value.clone(),
+            y: value,
+        }
+    }
+}
+impl<T> From<(T, T)> for Vec2<T>
+where
+    T: Clone,
+{
+    fn from(value: (T, T)) -> Self {
+        Vec2 {
+            x: value.0.clone(),
+            y: value.1,
+        }
     }
 }
 
@@ -203,7 +224,7 @@ where
     T: fmt::Display,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}, {}", self.x, self.y)
+        write!(f, "{},{}", self.x, self.y)
     }
 }
 

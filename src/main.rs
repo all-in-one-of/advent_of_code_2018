@@ -12,6 +12,7 @@ extern crate num_traits;
 
 mod error;
 mod vec2;
+mod mat2;
 #[macro_use]
 mod framework;
 
