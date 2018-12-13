@@ -1,4 +1,4 @@
-#![feature(stmt_expr_attributes, drain_filter)]
+#![feature(stmt_expr_attributes, drain_filter, try_from)]
 
 #[macro_use]
 extern crate lazy_static;
@@ -81,4 +81,5 @@ main!(
     day10,
     day11,
     day12,
+    day13,
 );
