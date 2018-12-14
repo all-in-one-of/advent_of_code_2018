@@ -9,6 +9,7 @@ extern crate reqwest;
 extern crate crypto;
 extern crate smallvec;
 extern crate num_traits;
+extern crate twoway;
 
 mod error;
 mod vec2;
@@ -82,4 +83,5 @@ main!(
     day11,
     day12,
     day13,
+    day14,
 );
