@@ -7,6 +7,7 @@ extern crate serde;
 extern crate bincode;
 extern crate reqwest;
 extern crate crypto;
+#[cfg_attr(test, macro_use)]
 extern crate smallvec;
 extern crate num_traits;
 extern crate twoway;
@@ -84,4 +85,5 @@ main!(
     day12,
     day13,
     day14,
+    day16,
 );
