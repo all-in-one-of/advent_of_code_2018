@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::ops::{Add, AddAssign, Sub, SubAssign, Mul, MulAssign, Div, DivAssign, Rem, RemAssign, Neg};
 use std::cmp::Ordering;
 use std::fmt;
@@ -21,6 +23,20 @@ impl<T> Vec2<T>
 {
     pub const fn new(x: T, y: T) -> Self {
         Vec2 { x, y }
+    }
+
+    pub fn all<F>(&self, other: &Self, mut f: F) -> bool
+    where
+        F: FnMut(&T, &T) -> bool,
+    {
+        f(&self.x, &other.x) && f(&self.y, &other.y)
+    }
+
+    pub fn any<F>(&self, other: &Self, mut f: F) -> bool
+    where
+        F: FnMut(&T, &T) -> bool,
+    {
+        f(&self.x, &other.x) || f(&self.y, &other.y)
     }
 }
 impl<T> From<T> for Vec2<T>

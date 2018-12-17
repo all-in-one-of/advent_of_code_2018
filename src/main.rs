@@ -11,6 +11,7 @@ extern crate crypto;
 extern crate smallvec;
 extern crate num_traits;
 extern crate twoway;
+extern crate pathfinding;
 
 mod error;
 mod vec2;
@@ -85,5 +86,6 @@ main!(
     day12,
     day13,
     day14,
+    day15,
     day16,
 );
