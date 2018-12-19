@@ -3,7 +3,7 @@
 use crate::vec2::Vec2us;
 use std::ops::{Index, IndexMut};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Mat2<T: Clone> {
     data: Vec<T>,
     size: Vec2us,
