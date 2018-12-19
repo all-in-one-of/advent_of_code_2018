@@ -20,6 +20,7 @@ macro_rules! day_callback {
         Some((|input| $callback(input).map(|x| x.to_string())) as (fn(&str) -> Result<String>))
     };
 }
+#[allow(unused_macros)]
 #[cfg(test)]
 macro_rules! assert_results {
     ($fn:ident, $($input:tt => $expected:expr),+$(,)*) => {

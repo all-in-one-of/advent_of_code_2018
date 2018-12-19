@@ -1,4 +1,5 @@
 // Matrix 2D backed by a vector
+#![allow(dead_code)]
 use crate::vec2::Vec2us;
 use std::ops::{Index, IndexMut};
 

@@ -21,10 +21,21 @@ pub struct Vec2<T> {
 
 impl<T> Vec2<T>
 {
+    #[inline(always)]
     pub const fn new(x: T, y: T) -> Self {
         Vec2 { x, y }
     }
 
+    #[inline(always)]
+    pub fn with_x(self, x: T) -> Self {
+        Vec2 { x, y: self.y }
+    }
+    #[inline(always)]
+    pub fn with_y(self, y: T) -> Self {
+        Vec2 { x: self.x, y }
+    }
+
+    #[inline(always)]
     pub fn all<F>(&self, other: &Self, mut f: F) -> bool
     where
         F: FnMut(&T, &T) -> bool,
@@ -32,6 +43,7 @@ impl<T> Vec2<T>
         f(&self.x, &other.x) && f(&self.y, &other.y)
     }
 
+    #[inline(always)]
     pub fn any<F>(&self, other: &Self, mut f: F) -> bool
     where
         F: FnMut(&T, &T) -> bool,
@@ -39,6 +51,7 @@ impl<T> Vec2<T>
         f(&self.x, &other.x) || f(&self.y, &other.y)
     }
 }
+
 impl<T> From<T> for Vec2<T>
 where
     T: Clone
