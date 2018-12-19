@@ -1,0 +1,98 @@
+Registers a through f
+Register d is the instruction pointer
+
+ 0: d += 16;
+ 1: c = 1;
+ 2: f = 1;
+ 3: b = c == f;
+ 4: b = b == e;
+ 5: d += b;
+ 6: d += 1;
+ 7: a += c;
+ 8: f += 1;
+ 9: b = f > e;
+10: d += b;
+11: d = 2;
+12: c += 1;
+13: b = c > e;
+14: d += b;
+15: d = 1;
+16: d = d * d;
+17: e += 2;
+18: e = e * e;
+19: e = d * e;
+20: e = e * 11;
+21: b += 4;
+22: b *= d;
+23: b += 2;
+24: e += b;
+25: d += a;
+26: d = 0;
+27: b = d;
+28: b *= d;
+29: b += d;
+30: b *= d;
+31: b *= 14;
+32: b *= d;
+33: e += b;
+34: a = 0;
+35: d = 0;
+
+Basic control flow analysis
+
+ 0: d += 16;            --------\
+ 1: c = 1;              <-------+---\
+ 2: f = 1;              x<------+---+-----------\
+ 3: b = c == f;         x<------+---+-------\   |
+ 4: b = b == e;         x       |   |       v   v
+ 5: d += b;             --------+---+---\ if b == e
+ 6: d += 1;             ---\    |   |   |   ^   ^
+ 7: a += c;             <--+----+---+---/   |   |
+ 8: f += 1;             <--/    |   |       |   |
+ 9: b = f > e;          x       v   v       |   |
+10: d += b;             ----\ if f > e      |   |
+11: d = 2;              --------------------/   |
+12: c += 1;             <---/   ^   ^           |
+13: b = c > e;          x       |   |           |
+14: d += b;             ---\    |   |        if c > e
+15: d = 1;              ---+----+---+-----------/
+16: d = d * d;          x<-/ ---+---+-------------------> exit if c <= e
+17: e += 2;             <-------/   |
+18: e = e * e;          x           |
+19: e = d * e;          x           |
+20: e = e * 11;         x           |
+21: b += 4;             x           |
+22: b *= d;             x           |
+23: b += 2;             x           |
+24: e += b;             x           v
+25: d += a;             --------\ a == 1 on first iteration
+26: d = 0;                      |   ^
+27: b = d;              <-------/   |
+28: b *= d;             x           |
+29: b += d;             x           |
+30: b *= d;             x           |
+31: b *= 14;            x           |
+32: b *= d;             x           |
+33: e += b;             x           |
+34: a = 0;              x           |
+35: d = 0;              ------------/
+
+Notes:
+- It first initializes e to some target value (instructions 27..36)
+- It performs some logic in two nested loops until it reaches the target value.
+
+Generating out a sequence based on manually modifying e in range 1..=100 results in:
+1,3,4,7,6,12,8,15,13,18,12,28,14,24,24,31,18,39,20,42,32,36,24,60,31,42,40,56,30,72,
+32,63,48,54,48,91,38,60,56,90,42,96,44,84,78,72,48,124,57,93,72,98,54,120,72,120,80,
+90,60,168,62,96,104,127,84,144,68,126,96,144,72,195,74,114,124,140,96,168,80,186,121,
+126,84,224,108,132,120,180,90,234,112,168,128,144,120,252,98,171,156,217
+
+Searching for this sequence on the online encyclopedia of integer sequences resulted
+in exactly one match: https://oeis.org/A000203
+
+This is the sum of all positive divisors of a number:
+12 => 1 + 2 + 3 + 4 + 6 + 12 = 28
+13 => 1 + 13                 = 14
+14 => 1 + 2 + 7 + 14         = 24
+15 => 1 + 3 + 5 + 15         = 24
+16 => 1 + 2 + 4 + 8 + 16     = 31
