@@ -1,4 +1,5 @@
 #![feature(stmt_expr_attributes, drain_filter, try_from)]
+#![allow(unused_imports)]
 
 #[macro_use]
 extern crate lazy_static;
@@ -12,6 +13,8 @@ extern crate smallvec;
 extern crate num_traits;
 extern crate twoway;
 extern crate pathfinding;
+#[macro_use]
+extern crate bitflags;
 
 mod error;
 mod vec2;
@@ -91,4 +94,5 @@ main!(
     day17,
     day18,
     day19,
+    day20,
 );
