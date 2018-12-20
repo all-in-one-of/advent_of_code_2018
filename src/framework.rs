@@ -35,6 +35,7 @@ macro_rules! assert_results {
 
 use crate::{Error, Result};
 use reqwest::{Client, StatusCode};
+use colored::*;
 use std::collections::{BTreeMap, HashMap};
 use std::time::{Duration, Instant};
 
@@ -145,12 +146,12 @@ impl Framework {
         self.cache_input(client, day.url)?;
         let input = self.input_cache.get(day.url).unwrap();
         if let Some(part1) = day.part1 {
-            println!("\nRunning {}, part 1", day.name);
-            println!("Result:\n{}", part1(input)?);
+            println!("\n{} {}", day.name.bright_cyan().bold(), "part1");
+            println!("{}", part1(input)?.bright_green());
         }
         if let Some(part2) = day.part2 {
-            println!("\nRunning {}, part 2", day.name);
-            println!("Result:\n{}", part2(input)?);
+            println!("\n{} {}", day.name.bright_cyan().bold(), "part2");
+            println!("{}", part2(input)?.bright_green());
         }
 
         Ok(())

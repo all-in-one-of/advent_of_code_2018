@@ -1,30 +1,32 @@
 #![feature(stmt_expr_attributes, drain_filter, try_from)]
 #![allow(unused_imports)]
 
+extern crate colored;
 #[macro_use]
 extern crate lazy_static;
-extern crate regex;
-extern crate serde;
 extern crate bincode;
-extern crate reqwest;
 extern crate crypto;
+extern crate num_traits;
+extern crate pathfinding;
+extern crate regex;
+extern crate reqwest;
+extern crate serde;
 #[cfg_attr(test, macro_use)]
 extern crate smallvec;
-extern crate num_traits;
 extern crate twoway;
-extern crate pathfinding;
 #[macro_use]
 extern crate bitflags;
 
 mod error;
-mod vec2;
 mod mat2;
+mod vec2;
 #[macro_use]
 mod framework;
 
-use std::env;
-use reqwest::Client;
+use colored::*;
 use crate::framework::Framework;
+use reqwest::Client;
+use std::env;
 
 pub(crate) use crate::error::Error;
 pub(crate) use crate::error::Result;
@@ -52,7 +54,7 @@ macro_rules! main {
                     $(
                         {
                             if let Err(e) = fw.execute(&client, stringify!($days)) {
-                                eprintln!("{}", e);
+                                eprintln!("{}", e.to_string().red());
                                 std::process::exit(-2);
                             }
                         }
@@ -61,7 +63,7 @@ macro_rules! main {
                 2 => {
                     // execute specific day
                     if let Err(e) = fw.execute(&client, args[1].as_str()) {
-                        eprintln!("{}", e);
+                        eprintln!("{}", e.to_string().bright_red());
                         std::process::exit(-2);
                     }
                 },
@@ -74,6 +76,7 @@ macro_rules! main {
     };
 }
 
+#[rustfmt::skip]
 main!(
     day01,
     day02,

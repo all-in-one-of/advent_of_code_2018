@@ -210,7 +210,6 @@ fn part2(input: &str) -> Result<String> {
         std::mem::swap(&mut fore_area, &mut back_area);
 
         if let Some(previous_index) = previous_states.insert(fore_area.clone(), update_index) {
-            println!("{} == {}", previous_index, update_index);
             let cycle_length = update_index - previous_index;
             let offset = (ITERATIONS - previous_index) % cycle_length;
             if offset == 0 {
