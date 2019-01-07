@@ -8,20 +8,21 @@ day!(
 use regex::Regex;
 use std::str::FromStr;
 
+pub type IntType = u64;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct Register(u8);
+pub struct Register(pub IntType);
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct Immediate(u8);
-type Registers = [i64; 6];
+pub struct Immediate(pub IntType);
+pub type Registers = [IntType; 6];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct Instruction {
-    opcode: Opcode,
-    target: Register,
+pub struct Instruction {
+    pub opcode: Opcode,
+    pub target: Register,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum Opcode {
+pub enum Opcode {
     AddR(Register, Register),
     AddI(Register, Immediate),
     MulR(Register, Register),
@@ -41,26 +42,26 @@ enum Opcode {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-struct Program {
-    ip_register: u8,
-    instructions: Vec<Instruction>,
+pub struct Program {
+    pub ip_register: IntType,
+    pub instructions: Vec<Instruction>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-struct ProgramState<'a> {
-    program: &'a Program,
-    registers: Registers,
-    ip: usize,
+pub struct ProgramState<'a> {
+    pub program: &'a Program,
+    pub registers: Registers,
+    pub ip: IntType,
 }
 
 impl Register {
-    fn resolve(&self, registers: &Registers) -> i64 {
+    fn resolve(&self, registers: &Registers) -> IntType {
         registers[self.0 as usize]
     }
 }
 impl Immediate {
-    fn resolve(&self, _registers: &Registers) -> i64 {
-        self.0 as i64
+    fn resolve(&self, _registers: &Registers) -> IntType {
+        self.0
     }
 }
 
@@ -99,7 +100,7 @@ impl FromStr for Program {
 
         let mut lines = input.lines();
         let line = lines.next().ok_or(Error::Input("expected IP directive"))?;
-        let ip_register: u8 = if line.starts_with("#ip ") {
+        let ip_register: IntType = if line.starts_with("#ip ") {
             line[4..].parse()?
         } else {
             return Err(Error::Input("expected IP directive"));
@@ -110,9 +111,9 @@ impl FromStr for Program {
                 let capture = RE
                     .captures(line)
                     .ok_or(Error::Input("invalid instruction"))?;
-                let a = capture[2].parse::<u8>()?;
-                let b = capture[3].parse::<u8>()?;
-                let c = capture[4].parse::<u8>()?;
+                let a = capture[2].parse::<IntType>()?;
+                let b = capture[3].parse::<IntType>()?;
+                let c = capture[4].parse::<IntType>()?;
                 let opcode = match &capture[1] {
                     "addr" => Opcode::AddR(Register(a), Register(b)),
                     "addi" => Opcode::AddI(Register(a), Immediate(b)),
@@ -146,7 +147,7 @@ impl FromStr for Program {
 }
 
 impl Program {
-    fn new_state<'s>(&'s self) -> ProgramState<'s> {
+    pub fn new_state<'s>(&'s self) -> ProgramState<'s> {
         ProgramState {
             program: self,
             registers: [0; 6],
@@ -156,20 +157,20 @@ impl Program {
 }
 
 impl ProgramState<'_> {
-    fn execute(&mut self) -> bool {
-        if self.ip >= self.program.instructions.len() {
+    pub fn execute(&mut self) -> bool {
+        if self.ip as usize >= self.program.instructions.len() {
             return false;
         }
 
         let ip_register = self.program.ip_register as usize;
-        self.registers[ip_register] = self.ip as i64;
-        self.registers = self.program.instructions[self.ip].execute(&self.registers);
-        self.ip = (self.registers[ip_register] + 1) as usize;
+        self.registers[ip_register] = self.ip;
+        self.registers = self.program.instructions[self.ip as usize].execute(&self.registers);
+        self.ip = self.registers[ip_register] + 1;
 
         true
     }
 
-    fn run(&mut self) -> u64 {
+    pub fn run(&mut self) -> IntType {
         let mut count = 0;
         while self.execute() {
             count += 1;
@@ -178,7 +179,7 @@ impl ProgramState<'_> {
     }
 }
 
-fn part1(input: &str) -> Result<i64> {
+fn part1(input: &str) -> Result<IntType> {
     let program = Program::from_str(input)?;
     let mut state = program.new_state();
     state.run();
@@ -214,7 +215,7 @@ fn part2(input: &str) -> Result<String> {
             _ => {
                 return Err(Error::Input(
                     "expected input to be set at instruction[..len-3]",
-                ))
+                ));
             }
         }
         instruction.target.0 as usize
@@ -224,7 +225,7 @@ fn part2(input: &str) -> Result<String> {
     let mut state = program.new_state();
     state.registers[0] = 1;
     let mut last_ip = state.ip;
-    while last_ip != program.instructions.len() - 1 {
+    while last_ip as usize != program.instructions.len() - 1 {
         if !state.execute() {
             return Err(Error::Input("unexpected early termination"));
         }
@@ -232,7 +233,7 @@ fn part2(input: &str) -> Result<String> {
     }
 
     // Fetch the target input
-    let input = state.registers[input_register] as u64;
+    let input = state.registers[input_register] as IntType;
 
     let mut sigma = 0;
     for divisor in 1..=input {
