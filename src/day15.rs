@@ -477,31 +477,51 @@ fn part1(input: &str) -> Result<String> {
 fn part2(input: &str) -> Result<String> {
     let grid: Grid = input.parse()?;
 
-    'outer: for attack_power in 4..200 {
+    // Inclusive bounds for a binary search over attack power
+    let mut min_ap = 3;
+    let mut max_ap = 100;
+
+    let (attack_power, grid, round_count) = loop {
+        let attack_power = (max_ap - min_ap) / 2 + min_ap;
+
         let mut grid = grid.clone();
         let mut round_count = 0;
-        loop {
+        let victory = loop {
             let (any_updates, any_elf_killed) = grid.update_all_custom_power(attack_power);
             if any_elf_killed {
-                continue 'outer;
+                break false;
             }
             if !any_updates {
-                break;
+                break true;
             }
             round_count += 1;
+        };
+
+        if !victory {
+            // Didn't win, therefore should try again with a higher buff
+            min_ap = attack_power + 1;
+            if min_ap > max_ap {
+                return Err(Error::Input("cannot solve with maximum attack power"));
+            }
+            continue;
         }
 
-        let total_health: u32 = grid.units.iter().map(|unit| unit.health as u32).sum();
+        // Won with minimum amount of buff
+        if attack_power == min_ap {
+            break (attack_power, grid, round_count);
+        }
+        // Attempt winning with less power
+        max_ap = attack_power;
+    };
 
-        return Ok(format!(
-            "{} * {} = {}",
-            round_count,
-            total_health,
-            round_count * total_health
-        ));
-    }
-
-    Err(Error::Input("cannot solve with maximum attack power"))
+    let total_health: u32 = grid.units.iter().map(|unit| unit.health as u32).sum();
+    Ok(format!(
+        "{} * {} = {} ({} attack power)",
+        round_count,
+        total_health,
+        round_count * total_health,
+        attack_power,
+    ))
 }
 
 #[test]
