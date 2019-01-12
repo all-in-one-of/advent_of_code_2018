@@ -16,6 +16,7 @@ extern crate smallvec;
 extern crate twoway;
 #[macro_use]
 extern crate bitflags;
+extern crate ansi_term;
 
 mod error;
 mod mat2;
@@ -38,6 +39,10 @@ macro_rules! main {
             mod $days;
         )+
         fn main() {
+            if cfg!(windows) && !ansi_term::enable_ansi_support().is_ok() {
+                colored::control::set_override(false);
+            }
+
             let mut fw = Framework::new();
 
             $(
