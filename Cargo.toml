@@ -5,12 +5,12 @@ authors = ["Aidiakapi <aidiakapi@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-colored = "1.6.1"
-reqwest = "0.9.5"
+colored = "1.7.0"
+reqwest = "0.9.8"
 lazy_static = "1.2.0"
 regex = "1.1.0"
-serde = "1.0.82"
-serde_json = "1.0.33"
+serde = "1.0.84"
+serde_json = "1.0.34"
 bincode = "1.0.1"
 rust-crypto = "0.2.36"
 itertools = "0.8.0"
