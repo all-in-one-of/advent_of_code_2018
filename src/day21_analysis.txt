@@ -46,3 +46,193 @@ which isn't R0 in the instruction, and its value will be the solution to part1.
 Part 2 can be solved by evaluating R5 at instruction 28 until a value that was
 previously seen is encountered. This isn't the most elegant or fastest solution,
 but it works.
+
+
+Optimization:
+
+In order to optimize the code, I want to thoroughly understand it. To do so, I'll
+rewrite the code in a high level programming language. Initially I'll write it as
+C++ code, then change it to Rust code.
+
+Step 1. Restructuring the instructions:
+
+lb00: R5 = 123;
+lb01: R5 = R5 & 456;
+lb02: R5 = R5 == 72;
+lb03: IP = R5 + IP;
+lb04: IP = 0;
+lb05: R5 = 0;
+lb06: R3 = R5 | 65536;
+lb07: R5 = 733884;
+lb08: R1 = R3 & 255;
+lb09: R5 = R5 + R1;
+lb10: R5 = R5 & 16777215;
+lb11: R5 = R5 * 65899;
+lb12: R5 = R5 & 16777215;
+lb13: R1 = 256 > R3;
+lb14: IP = R1 + IP;
+lb15: IP = IP + 1;
+lb16: IP = 27;
+lb17: R1 = 0;
+lb18: R2 = R1 + 1;
+lb19: R2 = R2 * 256;
+lb20: R2 = R2 > R3;
+lb21: IP = R2 + IP;
+lb22: IP = IP + 1;
+lb23: IP = 25;
+lb24: R1 = R1 + 1;
+lb25: IP = 17;
+lb26: R3 = R1;
+lb27: IP = 7;
+lb28: R1 = R5 == R0;
+lb29: IP = R1 + IP;
+lb30: IP = 5;
+
+Step 2. Changing the instruction pointer to goto statements.
+
+using N = unsigned long long;
+void test(N R0) {
+    N R1 = 0;
+    N R2 = 0;
+    N R3 = 0;
+    N R5 = 0;
+
+    R5 = 123;
+lb01:
+    R5 = R5 & 456;
+    R5 = R5 == 72;
+    if (!R5) goto lb01;
+    R5 = 0;
+lb06:
+    R3 = R5 | 65536;
+    R5 = 733884;
+lb08:
+    R1 = R3 & 255;
+    R5 = R5 + R1;
+    R5 = R5 & 16777215;
+    R5 = R5 * 65899;
+    R5 = R5 & 16777215;
+    R1 = 256 > R3;
+    if (R1) goto lb28;
+    R1 = 0;
+lb18:
+    R2 = R1 + 1;
+    R2 = R2 * 256;
+    R2 = R2 > R3;
+    if (R2) goto lb26;
+    R1 = R1 + 1;
+    goto lb18;
+lb26:
+    R3 = R1;
+    goto lb08;
+lb28:
+    R1 = R5 == R0;
+    if (R1) return;
+    goto lb06;
+}
+
+Step 3. Replacing goto's with simple structured control flow
+
+using N = unsigned long long;
+void test(N R0) {
+    N R1 = 0;
+    N R2 = 0;
+    N R3 = 0;
+    N R5 = 0;
+
+    R5 = 123;
+    do {
+        R5 = R5 & 456;
+        R5 = R5 == 72;
+    } while (!R5);
+    R5 = 0;
+    while (true) {
+        R3 = R5 | 65536;
+        R5 = 733884;
+        while (true) {
+            R1 = R3 & 255;
+            R5 = R5 + R1;
+            R5 = R5 & 16777215;
+            R5 = R5 * 65899;
+            R5 = R5 & 16777215;
+            R1 = 256 > R3;
+            if (R1) break;
+            R1 = 0;
+            while (true) {
+                R2 = R1 + 1;
+                R2 = R2 * 256;
+                R2 = R2 > R3;
+                if (R2) break;
+                R1 = R1 + 1;
+            }
+            R3 = R1;
+        }
+        R1 = R5 == R0;
+        if (R1) return;
+    }
+}
+
+Step 4. Scope variables and remove dead code.
+
+using N = unsigned long long;
+void test(N R0) {
+    N R5 = 0;
+    while (true) {
+        N R3 = R5 | 65536;
+        R5 = 733884;
+        while (true) {
+            R5 = R5 + (R3 & 255);
+            R5 = R5 & 16777215;
+            R5 = R5 * 65899;
+            R5 = R5 & 16777215;
+            if (256 > R3) break;
+            N E1 = 0;
+            while (true) {
+                N R2 = E1 + 1;
+                R2 = R2 * 256;
+                R2 = R2 > R3;
+                if (R2) break;
+                E1 = E1 + 1;
+            }
+            R3 = E1;
+        }
+        if (R5 == R0) return;
+    }
+}
+
+Step 5. Transform it into Rust code.
+
+pub extern fn test(r0: u64) {
+    let mut r5: u64 = 0;
+    loop {
+        let mut r3: u64 = r5 | 65536;
+        r5 = 733884;
+        loop {
+            r5 = r5 + (r3 & 255);
+            r5 = r5 & 16777215;
+            r5 = r5 * 65899;
+            r5 = r5 & 16777215;
+            if 256 > r3 { break; }
+            let mut e1: u64 = 0;
+            loop {
+                let mut r2: u64 = e1 + 1;
+                r2 = r2 * 256;
+                r2 = if r2 > r3 { 1 } else { 0 };
+                if r2 == 1 { break; }
+                e1 = e1 + 1;
+            }
+            r3 = e1;
+        }
+        if r5 == r0 { return; }
+    }
+}
+
+At this point, I actually tried running the code, and it turned out to
+run quite quickly (around 150ms on my system for my input).
+
+I then looked at the differences between different people's inputs, and
+it turns out the only difference was the value being assigned to register 5
+in instruction 07. For my input this was 733884.
+
+I've implemented some verification of the input, and generalized the function
+to solve it for hopefully all inputs.

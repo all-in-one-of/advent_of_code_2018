@@ -6,6 +6,7 @@ day!(
 );
 
 use regex::Regex;
+use std::fmt::{self, Display};
 use std::str::FromStr;
 
 pub type IntType = u64;
@@ -14,6 +15,12 @@ pub struct Register(pub IntType);
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Immediate(pub IntType);
 pub type Registers = [IntType; 6];
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Argument {
+    Immediate(Immediate),
+    Register(Register),
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Instruction {
@@ -88,6 +95,121 @@ impl Instruction {
         };
         result[self.target.0 as usize] = new_value;
         result
+    }
+}
+
+impl Argument {
+    fn value(&self) -> IntType {
+        match self {
+            &Argument::Register(register) => register.0,
+            &Argument::Immediate(immediate) => immediate.0,
+        }
+    }
+}
+
+impl From<Register> for Argument {
+    fn from(register: Register) -> Argument {
+        Argument::Register(register)
+    }
+}
+impl From<Immediate> for Argument {
+    fn from(immediate: Immediate) -> Argument {
+        Argument::Immediate(immediate)
+    }
+}
+
+impl Opcode {
+    #[rustfmt::skip]
+    pub fn key(&self) -> &'static str {
+        match self {
+            &Opcode::AddR(_, _) => "addr",
+            &Opcode::AddI(_, _) => "addi",
+            &Opcode::MulR(_, _) => "mulr",
+            &Opcode::MulI(_, _) => "muli",
+            &Opcode::BanR(_, _) => "banr",
+            &Opcode::BanI(_, _) => "bani",
+            &Opcode::BorR(_, _) => "borr",
+            &Opcode::BorI(_, _) => "bori",
+            &Opcode::SetR(_   ) => "setr",
+            &Opcode::SetI(_   ) => "seti",
+            &Opcode::GtIR(_, _) => "gtir",
+            &Opcode::GtRI(_, _) => "gtri",
+            &Opcode::GtRR(_, _) => "gtrr",
+            &Opcode::EqIR(_, _) => "eqir",
+            &Opcode::EqRI(_, _) => "eqri",
+            &Opcode::EqRR(_, _) => "eqrr",
+        }
+    }
+
+    #[rustfmt::skip]
+    pub fn args(&self) -> (Argument, Option<Argument>) {
+        match self {
+            &Opcode::AddR(a, b) => (a.into(), Some(b.into())),
+            &Opcode::AddI(a, b) => (a.into(), Some(b.into())),
+            &Opcode::MulR(a, b) => (a.into(), Some(b.into())),
+            &Opcode::MulI(a, b) => (a.into(), Some(b.into())),
+            &Opcode::BanR(a, b) => (a.into(), Some(b.into())),
+            &Opcode::BanI(a, b) => (a.into(), Some(b.into())),
+            &Opcode::BorR(a, b) => (a.into(), Some(b.into())),
+            &Opcode::BorI(a, b) => (a.into(), Some(b.into())),
+            &Opcode::SetR(a   ) => (a.into(), None          ),
+            &Opcode::SetI(a   ) => (a.into(), None          ),
+            &Opcode::GtIR(a, b) => (a.into(), Some(b.into())),
+            &Opcode::GtRI(a, b) => (a.into(), Some(b.into())),
+            &Opcode::GtRR(a, b) => (a.into(), Some(b.into())),
+            &Opcode::EqIR(a, b) => (a.into(), Some(b.into())),
+            &Opcode::EqRI(a, b) => (a.into(), Some(b.into())),
+            &Opcode::EqRR(a, b) => (a.into(), Some(b.into())),
+        }
+    }
+
+    #[rustfmt::skip]
+    pub fn map_registers<F>(&self, mut f: F) -> Opcode
+    where
+        F: FnMut(Register) -> Register,
+    {
+        match self {
+            &Opcode::AddR(a, b) => Opcode::AddR(f(a), f(b)),
+            &Opcode::AddI(a, b) => Opcode::AddI(f(a),   b ),
+            &Opcode::MulR(a, b) => Opcode::MulR(f(a), f(b)),
+            &Opcode::MulI(a, b) => Opcode::MulI(f(a),   b ),
+            &Opcode::BanR(a, b) => Opcode::BanR(f(a), f(b)),
+            &Opcode::BanI(a, b) => Opcode::BanI(f(a),   b ),
+            &Opcode::BorR(a, b) => Opcode::BorR(f(a), f(b)),
+            &Opcode::BorI(a, b) => Opcode::BorI(f(a),   b ),
+            &Opcode::SetR(a   ) => Opcode::SetR(f(a)      ),
+            &Opcode::SetI(a   ) => Opcode::SetI(  a       ),
+            &Opcode::GtIR(a, b) => Opcode::GtIR(  a , f(b)),
+            &Opcode::GtRI(a, b) => Opcode::GtRI(f(a),   b ),
+            &Opcode::GtRR(a, b) => Opcode::GtRR(f(a), f(b)),
+            &Opcode::EqIR(a, b) => Opcode::EqIR(  a , f(b)),
+            &Opcode::EqRI(a, b) => Opcode::EqRI(f(a),   b ),
+            &Opcode::EqRR(a, b) => Opcode::EqRR(f(a), f(b)),
+        }
+    }
+}
+
+impl Display for Instruction {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let (a, b) = self.opcode.args();
+        write!(
+            f,
+            "{} {} {} {}",
+            self.opcode.key(),
+            a.value(),
+            b.unwrap_or(Argument::Immediate(Immediate(0))).value(),
+            self.target.0
+        )
+    }
+}
+
+impl Display for Program {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "#ip {}", self.ip_register)?;
+        for instruction in &self.instructions {
+            write!(f, "\n{}", instruction)?;
+        }
+        Ok(())
     }
 }
 
