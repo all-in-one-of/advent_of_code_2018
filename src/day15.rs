@@ -229,13 +229,6 @@ impl Grid {
         self.cells[new_position] = Cell::Occupied { unit };
     }
 
-    #[rustfmt::skip]
-    fn heuristic(from: Vec2us, to: Vec2us) -> u32 {
-        let dx = if from.x >= to.x { from.x - to.x } else { to.x - from.x };
-        let dy = if from.y >= to.y { from.y - to.y } else { to.y - from.y };
-        (dx + dy) as u32
-    }
-
     fn neighbors(&self, position: Vec2us) -> impl Iterator<Item = Vec2us> {
         let size = self.cells.size();
         neighbors(position).filter(move |position| position.all(&size, |a, b| a < b))
@@ -247,24 +240,39 @@ impl Grid {
     }
 
     fn path_step(&self, from: Vec2us, to: Vec2us) -> Option<(u32, Vec2us)> {
-        let fn_neighbors = |position: &Vec2us| -> SmallVec<[(Vec2us, u32); 4]> {
-            self.free_neighbors(*position)
-                .map(|position| (position, 1))
-                .collect()
-        };
-        let fn_heuristic = move |position: &Vec2us| Grid::heuristic(*position, to);
-        let fn_goal = move |position: &Vec2us| *position == to;
-        if let Some((_, length)) = astar(&from, fn_neighbors, fn_heuristic, fn_goal) {
-            // There is a path, check get the closest according to reading order
-            for neighbor in self.free_neighbors(from) {
-                if let Some((_, shorter_length)) =
-                    astar(&neighbor, fn_neighbors, fn_heuristic, fn_goal)
-                {
-                    if shorter_length == length - 1 {
-                        return Some((length, neighbor));
-                    }
-                }
+        if from == to {
+            return Some((0, to));
+        }
+        let fn_neighbors = |&position: &Vec2us| -> SmallVec<[(Vec2us, u32); 4]> {
+            // Adjust the costs of traversing to neighbors of the first position
+            // so that stepping through will prefer reading order over alternatives.
+            if position == from {
+                self.free_neighbors(position)
+                    .enumerate()
+                    .map(|(idx, position)| (position, idx as u32 + 1))
+                    .collect()
+            } else {
+                self.free_neighbors(position)
+                    .map(|position| (position, 5))
+                    .collect()
             }
+        };
+        #[rustfmt::skip]
+        let fn_heuristic = move |&position: &Vec2us| {
+            if position == from {
+                1
+            } else {
+                (     ((position.x as i32) - (to.x as i32)).abs()
+                    + ((position.y as i32) - (to.y as i32)).abs()) as u32
+                    * 5
+            }
+        };
+        let fn_goal = move |position: &Vec2us| *position == to;
+
+        if let Some((path, length)) = astar(&from, fn_neighbors, fn_heuristic, fn_goal) {
+            let length = length / 5 + 1;
+            let neighbor = path[1];
+            return Some((length, neighbor));
         }
         None
     }
@@ -783,28 +791,28 @@ fn day15_test() {
 #.#.#G#
 #..G#E#
 #.....#
-#######" => "29 * 172 = 4988",
+#######" => "29 * 172 = 4988 (15 attack power)",
 "#######
 #E..EG#
 #.#G.E#
 #E.##E#
 #G..#.#
 #..E#.#
-#######" => "33 * 948 = 31284",
+#######" => "33 * 948 = 31284 (4 attack power)",
 "#######
 #E.G#.#
 #.#G..#
 #G.#.G#
 #G..#.#
 #...E.#
-#######" => "37 * 94 = 3478",
+#######" => "37 * 94 = 3478 (15 attack power)",
 "#######
 #.E...#
 #.#..G#
 #.###.#
 #E#G#G#
 #...#G#
-#######" => "39 * 166 = 6474",
+#######" => "39 * 166 = 6474 (12 attack power)",
 "#########
 #G......#
 #.E.#...#
@@ -813,6 +821,6 @@ fn day15_test() {
 #...#...#
 #.G...G.#
 #.....G.#
-#########" => "30 * 38 = 1140"
+#########" => "30 * 38 = 1140 (34 attack power)"
 );
 }
